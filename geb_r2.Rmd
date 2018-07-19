@@ -1,0 +1,60 @@
+---
+title: "(Why) are $R^2$ getting smaller?"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+theme_set(theme_bw() + theme(strip.background = element_blank(), 
+                             panel.grid.major = element_blank(),
+                             panel.grid.minor = element_blank()))
+```
+
+Our primary hypothesis is that $R^2$ values have been decreasing in the 30 years since Global Ecology and Biogeography started. 
+
+This relationship could take a few forms: continually decreasing, decreasing after a particular point in time (threshold), sharp decrease (step, extreme form of threshold). 
+
+```{r}
+df <- tibble(year = 1989:2018, 
+             r2_dec = seq(0.75, 0.25, length.out = 30), 
+             r2_thresh = c(rep(0.75, 15), seq(0.75, 0.25, length.out = 15)), 
+             r2_step = c(rep(0.75, 15), rep(0.25, 15))) %>% 
+  gather(type, value, -year) %>% 
+  mutate(type = factor(type, 
+                        levels = c("r2_dec", "r2_thresh", "r2_step"), 
+                        labels = c("Decreasing", "Threshold", "Step")))
+
+ggplot(df, aes(x = year, y = value)) + 
+  geom_line() + 
+  facet_wrap(~ type, nrow = 1) + 
+  labs(x = "Year", y = expression(R^{2}))
+```
+
+# Hypotheses
+
+1. Low-hanging fruit: the 'easy' or obvious questions were addressed first. Threshold or step would be likely in this case. 
+
+2. Publish or perish: researchers are under more pressure to publish and so are publishing studies with lower model fit. This could be any of the forms, but we could look into whether there is a particular point in time where this became more of a thing? 
+
+3. Spatial scale: finer resolution data is increasingly available and used in macroecological models, but this might not be appropriate for the patterns being analysed. 
+
+4. Species numbers: more species are being modelled together now, leading to lower model fit. 
+
+# Methods
+
+## Data collection
+
+1. Get all GEB papers
+
+2. Identify papers which use a statistical model for which $R^2$ can be calculated ([`pdftools`](https://cran.r-project.org/web/packages/pdftools/pdftools.pdf) or [`tm`](https://cran.r-project.org/web/packages/tm/vignettes/tm.pdf) R packages could be used for getting the information from the articles). 
+
+3. Extract the $R^2$ value if there is one reported. 
+
+4. Extract relevant covariates (spatial resolution, spatial extent, number of species ...)
+
+## Data analysis
+
+We can use breakpoint regression with the [`strucchange`](https://cran.r-project.org/web/packages/strucchange/strucchange.pdf) package. 
+
