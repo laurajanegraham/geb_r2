@@ -11,8 +11,7 @@ geb_dois <- map_dfr(1:n_pages, function(x) {
   return(dois)
 })
 
-test <- geb_dois %>% 
-  mutate(year = lubridate::year(issued)) %>% 
-  group_by() %>% 
-  summarise(count = n())
-
+geb_pdfs <- map(geb_dois$url, function(x) {
+  # some code to download the pdfs
+  # see http://tdmsupport.crossref.org/researchers/
+})
