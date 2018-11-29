@@ -25,9 +25,9 @@ dois<-geb_dois$doi
 
 # crm_links() takes all DOIs and returns those links with PDFs
 # More PDFs *should* be available...many articles aren't returning PDF links. Speaking with Scott Chamberlain to resolve this.
-links<-lapply(dois, crm_links, type="pdf")
+links<-lapply(dois, crm_links, type="all")
 pdf_links<-lapply(as_tdmurl(links))
-pdfs<-crm_pdf(links)
+pdfs<-crm_pdf(links[[1]], overwrite_unspecified=TRUE)
 
 
 
